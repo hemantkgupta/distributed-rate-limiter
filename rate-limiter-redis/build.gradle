@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':rate-limiter-core')
+    
+    // We will use standard Spring Boot Starter Data Redis which provides Lettuce natively
+    api 'org.springframework.boot:spring-boot-starter-data-redis'
+    
+    // Bucket4j Redis integration
+    api 'com.github.bucket4j:bucket4j-redis:8.7.0'
+}

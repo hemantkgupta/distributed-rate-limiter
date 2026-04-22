@@ -1,0 +1,15 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation project(':rate-limiter-core')
+    implementation project(':rate-limiter-redis')
+    implementation project(':rate-limiter-envoy-adapter')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    
+    // gRPC Spring Boot Starter
+    implementation 'net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE'
+}

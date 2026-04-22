@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # The API Gateway - Entry point for all local client traffic
+  envoy:
+    image: envoyproxy/envoy:v1.28.0
+    container_name: rls_envoy
+    ports:
+      - "8080:8080" # Client entry point
+      - "9901:9901" # Envoy admin port
+    volumes:
+      - ./infra/envoy/envoy.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - rate-limiter
+      - mock-api
+    networks:
+      - rls_network
+
+  # The Distributed Rate Limiter Service (gRPC server)
+  rate-limiter:
+    build:
+      context: .
+      dockerfile: infra/local/Dockerfile.rate-limiter
+    container_name: rate_limiter_service
+    ports:
+      - "8081:8081" # gRPC port for Envoy
+      - "8082:8082" # HTTP Admin/Metrics API
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SERVER_PORT=8082
+      - GRPC_PORT=8081
+    depends_on:
+      - redis
+    networks:
+      - rls_network
+
+  # Centralized State Store for Token Buckets/GCRA
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: rls_redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      - rls_network
+
+  # Simulated downstream application (Target of the Gateway)
+  mock-api:
+    image: hashicorp/http-echo:latest
+    container_name: rls_mock_api
+    command: ["-text=Hello from the Backend API! Rate Limit matched successfully if you see this."]
+    ports:
+      - "5678:5678"
+    networks:
+      - rls_network
+
+networks:
+  rls_network:
+    driver: bridge

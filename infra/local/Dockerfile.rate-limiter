@@ -1,0 +1,23 @@
+FROM gradle:8.6.0-jdk21-alpine AS builder
+
+WORKDIR /app
+COPY settings.gradle build.gradle ./
+COPY rate-limiter-core ./rate-limiter-core
+COPY rate-limiter-redis ./rate-limiter-redis
+COPY rate-limiter-service ./rate-limiter-service
+COPY rate-limiter-envoy-adapter ./rate-limiter-envoy-adapter
+COPY rate-limiter-dst ./rate-limiter-dst
+
+# In a real build, we'd run:
+# RUN gradle :rate-limiter-service:bootJar -y
+
+# For this architectural skeleton setup, we will just use a minimal Java container to keep the compose running.
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+# COPY --from=builder /app/rate-limiter-service/build/libs/*.jar app.jar
+
+EXPOSE 8081 8082
+
+# Temporary stub command so the container doesn't crash before the Java Code is fully fleshed out
+CMD ["sh", "-c", "echo 'Rate Limiter Service Skeleton Started. Waiting for JAR build...' && tail -f /dev/null"]

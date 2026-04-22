@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+
+# macOS
+.DS_Store
+
+# Virtual Environments (used for scripting/extraction)
+venv/
+
+# Local text files
+pdf_text.txt

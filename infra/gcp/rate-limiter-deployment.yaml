@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rate-limiter-service
+  namespace: prod-api
+  labels:
+    app: rate-limiter
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rate-limiter
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: rate-limiter
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rate-limiter
+              topologyKey: "topology.kubernetes.io/zone"
+      containers:
+      - name: rate-limiter-service
+        image: gcr.io/your-project/rate-limiter-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+          name: grpc
+        - containerPort: 8082
+          name: http-admin
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: connection_string
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8082
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rate-limiter-service
+  namespace: prod-api
+  labels:
+    app: rate-limiter
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: grpc
+  - port: 8082
+    targetPort: 8082
+    protocol: TCP
+    name: http-admin
+  selector:
+    app: rate-limiter

@@ -1,0 +1,10 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    testImplementation project(':rate-limiter-service')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.6'
+    testImplementation 'com.redis.testcontainers:testcontainers-redis-junit:1.6.4'
+}

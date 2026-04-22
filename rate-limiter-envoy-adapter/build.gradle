@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Envoy Data Plane API (contains the pre-compiled Envoy gRPC classes like RateLimitServiceGrpc)
+    api 'io.envoyproxy.controlplane:api:1.1.2.Final' // Contains envoy.service.ratelimit.v3
+    
+    // gRPC/Protobuf dependencies required by the Envoy API classes
+    api 'io.grpc:grpc-protobuf:1.62.2'
+    api 'io.grpc:grpc-stub:1.62.2'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // javax.annotation
+}
