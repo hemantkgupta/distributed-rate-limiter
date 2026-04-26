@@ -9,5 +9,5 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter-data-redis'
     
     // Bucket4j Redis integration
-    api 'com.github.bucket4j:bucket4j-redis:8.7.0'
+    api 'com.bucket4j:bucket4j-redis:8.10.1'
 }
